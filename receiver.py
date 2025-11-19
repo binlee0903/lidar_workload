@@ -10,18 +10,17 @@ import sys
 import threading
 from pathlib import Path
 
-from sensor_msgs.msg import PointCloud2
-from sensor_msgs_py import point_cloud2 as pc2
+from velodyne_msgs.msg import VelodyneScan
 from std_msgs.msg import UInt64MultiArray
 
 NODE_PRIORITY = 60
 WARMING_UP = 10
 EXPERIMENT_COUNT = 100
 
-VELODYNE_TOPIC = 'velodyne_points'
-TIME_TOPIC = 'time_packets'
+VELODYNE_TOPIC = 'velodyne_packets'
+TIME_TOPIC = 'my_time_packets'
 RECEIVE_LOG_FILE = "receive_log.csv"
-POINTCLOUD_LOG_FILE = "POINTCLOUD_log.csv"
+POINTCLOUD_LOG_FILE = "pointcloud_log.csv"
 
 class LiDARReceiveNode(Node):
     def __init__(self):
@@ -40,7 +39,7 @@ class LiDARReceiveNode(Node):
         )
 
         self.pointcloud_subscription = self.create_subscription(
-            PointCloud2,
+            VelodyneScan,
             VELODYNE_TOPIC,
             self.pointcloud_callback,
             qos_profile
@@ -54,7 +53,7 @@ class LiDARReceiveNode(Node):
         )
 
     def receive_time(self, msg):
-        self.receive_log.push((msg.data[0], msg.data[1]))
+        self.receive_log.append((msg.data[0], msg.data[1]))
 
     def pointcloud_callback(self, msg):
         self.running_count += 1
@@ -75,7 +74,7 @@ class LiDARReceiveNode(Node):
                 f.write("\n".join(f"{frame_index},{time}" for frame_index, time in self.pointcloud_log))
             return
 
-        self.pointcloud_log.push((msg.header.frame_id, time.monotonic_ns()))
+        self.pointcloud_log.append((int(msg.header.frame_id), time.monotonic_ns()))
 
 def main(args=None):
     param = os.sched_param(NODE_PRIORITY)
