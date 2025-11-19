@@ -14,7 +14,7 @@ CYCLIC_PID=$!
 
 sleep 2
 
-sudo bash -c "source lidar_env/bin/activate && source /opt/ros/kilted/setup.bash && python receiver.py"
+sudo bash -c "source lidar_env/bin/activate && source /opt/ros/${ROS_DISTRO}/setup.bash && python receiver.py"
 
 sudo kill -2 $CYCLIC_PID
 
