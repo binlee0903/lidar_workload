@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
 from sensor_msgs.msg import Image
+from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import String
 import time
 import os
@@ -15,9 +16,9 @@ from std_msgs.msg import UInt64MultiArray
 
 NODE_PRIORITY = 60
 WARMING_UP = 10
-EXPERIMENT_COUNT = 100
+EXPERIMENT_COUNT = 1000
 
-VELODYNE_TOPIC = 'velodyne_packets'
+POINTCLOUD_TOPIC = 'velodyne_points'
 TIME_TOPIC = 'my_time_packets'
 RECEIVE_LOG_FILE = "receive_log.csv"
 POINTCLOUD_LOG_FILE = "pointcloud_log.csv"
@@ -39,8 +40,8 @@ class LiDARReceiveNode(Node):
         )
 
         self.pointcloud_subscription = self.create_subscription(
-            VelodyneScan,
-            VELODYNE_TOPIC,
+            PointCloud2,
+            POINTCLOUD_TOPIC,
             self.pointcloud_callback,
             qos_profile
         )
