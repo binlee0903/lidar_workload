@@ -1,27 +1,31 @@
+import os
+os.sched_setaffinity(0, {1, 2, 3, 4, 5}) # change this
+
 import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, DurabilityPolicy
-from sensor_msgs.msg import Image
 from sensor_msgs.msg import PointCloud2
 from std_msgs.msg import String
 import time
-import os
 import ctypes
 import sys
 import threading
 from pathlib import Path
 
-from velodyne_msgs.msg import VelodyneScan
 from std_msgs.msg import UInt64MultiArray
 
 NODE_PRIORITY = 60
 WARMING_UP = 10
 EXPERIMENT_COUNT = 1000
 
-POINTCLOUD_TOPIC = 'velodyne_points'
+kernel = "native" # 수정 포인트
+stress = "25" # 수정 포인트
+base_path = f"/home/binlee0903/results/lidar/{kernel}/{stress}/"
+
+POINTCLOUD_TOPIC = '/velodyne_points'
 TIME_TOPIC = 'my_time_packets'
-RECEIVE_LOG_FILE = "receive_log.csv"
-POINTCLOUD_LOG_FILE = "pointcloud_log.csv"
+RECEIVE_LOG_FILE = base_path + "receive_log.csv"
+POINTCLOUD_LOG_FILE = base_path + "pointcloud_log.csv"
 
 class LiDARReceiveNode(Node):
     def __init__(self):
@@ -62,7 +66,7 @@ class LiDARReceiveNode(Node):
         if self.running_count <= WARMING_UP:
             return
 
-        if self.running_count > EXPERIMENT_COUNT:
+        if self.running_count >= EXPERIMENT_COUNT:
             rclpy.shutdown()
             with open(RECEIVE_LOG_FILE, 'w') as f:
                 f.write("frame_index,receive_ns\n")
